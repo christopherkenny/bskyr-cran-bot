@@ -19,7 +19,6 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           packages:
-            cran::brio
             any::here
             github::christopherkenny/bskyr
 
