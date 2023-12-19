@@ -18,7 +18,7 @@ if (!bs_has_pass()) {
 auth <- bs_auth(bs_get_user(), bs_get_pass())
 
 # load available packages ----
-pkgs <- available.packages() |>
+pkgs <- available.packages(filters = c('CRAN', 'duplicates')) |>
   as_tibble() |>
   select(Package, Version)
 
