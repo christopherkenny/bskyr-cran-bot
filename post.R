@@ -1,5 +1,6 @@
 library(bskyr)
 library(dplyr)
+library(stringr)
 library(googlesheets4)
 
 # authenticate ----
@@ -47,14 +48,35 @@ removed <- setdiff(old_pkgs, pkgs) |>
 if (nrow(updates) > 0) {
   update_txt <- vapply(seq_len(nrow(updates)), function(i) {
     paste0(updates$Package[i], ' (', updates$Version[i], ')')
-  }, character(1)) |>
-    paste0(collapse = ', ')
-  bskyr::bs_post(
-    text = paste0('Updates on CRAN: ', update_txt),
-    auth = auth
-  )
-  # avoid immediate new posts
-  Sys.sleep(3)
+  }, character(1))
+
+  n_char_update <- cumsum(nchar(update_txt))
+
+  if (max(n_char_update) > 260) {
+    # split into multiple posts
+    update_txt <- update_txt |>
+      split(cut(n_char_update, breaks = ceiling(max(n_char_update) / 260))) |>
+      lapply(paste0, collapse = ', ')
+
+    lapply(update_txt, function(txt) {
+      bskyr::bs_post(
+        text = paste0('Updates on CRAN: ', txt),
+        auth = auth
+      )
+      # avoid immediate new posts
+      Sys.sleep(3)
+    })
+
+  } else {
+    update_txt <- update_txt |>
+      paste0(collapse = ', ')
+    bskyr::bs_post(
+      text = paste0('Updates on CRAN: ', update_txt),
+      auth = auth
+    )
+    # avoid immediate new posts
+    Sys.sleep(3)
+  }
 }
 
 cat('Updates:', nrow(updates), '\n')
@@ -79,14 +101,35 @@ cat('New packages:', nrow(new_pkgs), '\n')
 if (nrow(removed) > 0) {
   removed_txt <- vapply(seq_len(nrow(removed)), function(i) {
     paste0(removed$Package[i], ' (', removed$Version[i], ')')
-  }, character(1)) |>
-    paste0(collapse = ', ')
-  bskyr::bs_post(
-    text = paste0('Removed from CRAN: ', removed_txt),
-    auth = auth
-  )
-  # avoid immediate new posts
-  Sys.sleep(3)
+  }, character(1))
+
+  n_char_remove <- cumsum(nchar(removed_txt))
+
+  if (max(n_char_remove) > 260) {
+    # split into multiple posts
+    removed_txt <- removed_txt |>
+      split(cut(n_char_remove, breaks = ceiling(max(n_char_remove) / 260))) |>
+      lapply(paste0, collapse = ', ')
+
+    lapply(removed_txt, function(txt) {
+      bskyr::bs_post(
+        text = paste0('Removed from CRAN: ', txt),
+        auth = auth
+      )
+      # avoid immediate new posts
+      Sys.sleep(3)
+    })
+
+  } else {
+    removed_txt <- removed_txt |>
+      paste0(collapse = ', ')
+    bskyr::bs_post(
+      text = paste0('Removed from CRAN: ', removed_txt),
+      auth = auth
+    )
+    # avoid immediate new posts
+    Sys.sleep(3)
+  }
 }
 
 cat('Removed packages:', nrow(removed), '\n')
