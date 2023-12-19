@@ -1,8 +1,89 @@
 library(bskyr)
 library(dplyr)
+library(googlesheets4)
 
+# authenticate ----
+# no use running if it can't do anything
+if (Sys.getenv('GARGLE_KEY') =='') {
+  stop('No key found to decrypt the secret.')
+}
+gs4_auth(path = gargle::secret_decrypt_json('inst/secret/bskyr-cran-bot.json', key = 'GARGLE_KEY'))
+
+if (!bs_has_user()) {
+  stop('bsky user not found.')
+}
+if (!bs_has_pass()) {
+  stop('bsky pass not found.')
+}
+auth <- bs_auth(bs_get_user(), bs_get_pass())
+
+# load available packages ----
 pkgs <- available.packages() |>
   as_tibble() |>
   select(Package, Version)
 
-cat(nrow(pkgs))
+# Run first time to create a spreadsheet
+# gs4_auth()
+# gs4_create(name = 'bskyr-cran-bot', sheets = list(pkgs = pkgs))
+
+# get the old spreadsheet ----
+old_pkgs <- read_sheet(ss = '135p8xqI3LGIyuvwSjav13tY10fRu8dUPFjVNVal18Tk', sheet = 'pkgs')
+
+
+# identify changes ----
+updates <- setdiff(pkgs, old_pkgs)
+
+new_pkgs <- updates |>
+  filter(!Package %in% old_pkgs$Package)
+
+updates <- updates |>
+  filter(!Package %in% new_pkgs$Package)
+
+removed <- setdiff(old_pkgs, pkgs) |>
+  filter(!Package %in% pkgs$Package)
+
+# make posts ----
+
+if (nrow(updates) > 0) {
+  update_txt <- vapply(seq_len(nrow(updates)), function(i) {
+    paste0(updates$Package[i], ' (', updates$Version[i], ')')
+  }, character(1)) |>
+    paste0(collapse = ', ')
+  bskyr::bs_post(
+    text = paste0('Updates on CRAN: ', update_txt),
+    auth = auth
+  )
+  # avoid immediate new posts
+  Sys.sleep(3)
+}
+
+if (nrow(new_pkgs) > 0) {
+  lapply(
+    seq_len(nrow(new_pkgs)),
+    function(i) {
+      bskyr::bs_post(
+        text = paste0('New on CRAN: ', new_pkgs$Package[i], ' (', new_pkgs$Version[i], '). View at ',
+                      'https://CRAN.R-project.org/package=', new_pkgs$Package[i]),
+        auth = auth
+      )
+      # avoid immediate new posts
+      Sys.sleep(3)
+    }
+    )
+}
+
+if (nrow(removed) > 0) {
+  removed_txt <- vapply(seq_len(nrow(removed)), function(i) {
+    paste0(removed$Package[i], ' (', removed$Version[i], ')')
+  }, character(1)) |>
+    paste0(collapse = ', ')
+  bskyr::bs_post(
+    text = paste0('Removed from CRAN: ', removed_txt),
+    auth = auth
+  )
+  # avoid immediate new posts
+  Sys.sleep(3)
+}
+
+# update the spreadsheet ----
+write_sheet(pkgs, ss = '135p8xqI3LGIyuvwSjav13tY10fRu8dUPFjVNVal18Tk', sheet = 'pkgs')
