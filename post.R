@@ -57,6 +57,8 @@ if (nrow(updates) > 0) {
   Sys.sleep(3)
 }
 
+cat('Updates:', nrow(updates), '\n')
+
 if (nrow(new_pkgs) > 0) {
   lapply(
     seq_len(nrow(new_pkgs)),
@@ -72,6 +74,8 @@ if (nrow(new_pkgs) > 0) {
     )
 }
 
+cat('New packages:', nrow(new_pkgs), '\n')
+
 if (nrow(removed) > 0) {
   removed_txt <- vapply(seq_len(nrow(removed)), function(i) {
     paste0(removed$Package[i], ' (', removed$Version[i], ')')
@@ -84,6 +88,8 @@ if (nrow(removed) > 0) {
   # avoid immediate new posts
   Sys.sleep(3)
 }
+
+cat('Removed packages:', nrow(removed), '\n')
 
 # update the spreadsheet ----
 write_sheet(pkgs, ss = '135p8xqI3LGIyuvwSjav13tY10fRu8dUPFjVNVal18Tk', sheet = 'pkgs')
