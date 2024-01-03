@@ -13,3 +13,4 @@ It is powered by [a scheduled GitHub Actions workflow](https://github.com/christ
 ```r
 install.packages('bskyr')
 ```
+The logic behind this bot is explained [here](https://christophertkenny.com/posts/2024-01-03-bskyr-bot/).
