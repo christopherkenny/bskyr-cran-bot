@@ -2,7 +2,7 @@
 # Bluesky CRAN Updates Bot
 
 <!-- badges: start --->
-[![post]([R-CMD-check](https://github.com/christopherkenny/bskyr-cran-bot/actions/workflows/post.yml/badge.svg)](https://github.com/christopherkenny/bskyr-cran-bot/actions/workflows/post.yml)
+[![post](https://github.com/christopherkenny/bskyr-cran-bot/actions/workflows/post.yml/badge.svg)](https://github.com/christopherkenny/bskyr-cran-bot/actions/workflows/post.yml)
 <!-- badges: end -->
 
 This repository contains the code behind the bot at <https://bsky.app/profile/cranupdates.bsky.social>.
