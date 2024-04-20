@@ -52,10 +52,10 @@ if (nrow(updates) > 0) {
 
   n_char_update <- cumsum(nchar(update_txt))
 
-  if (max(n_char_update) > 260) {
+  if (max(n_char_update) > 240) {
     # split into multiple posts
     update_txt <- update_txt |>
-      split(cut(n_char_update, breaks = ceiling(max(n_char_update) / 260))) |>
+      split(cut(n_char_update, breaks = ceiling(max(n_char_update) / 240))) |>
       lapply(paste0, collapse = ', ')
 
     lapply(update_txt, function(txt) {
@@ -105,10 +105,10 @@ if (nrow(removed) > 0) {
 
   n_char_remove <- cumsum(nchar(removed_txt))
 
-  if (max(n_char_remove) > 260) {
+  if (max(n_char_remove) > 240) {
     # split into multiple posts
     removed_txt <- removed_txt |>
-      split(cut(n_char_remove, breaks = ceiling(max(n_char_remove) / 260))) |>
+      split(cut(n_char_remove, breaks = ceiling(max(n_char_remove) / 240))) |>
       lapply(paste0, collapse = ', ')
 
     lapply(removed_txt, function(txt) {
