@@ -17,6 +17,7 @@ if (!bs_has_pass()) {
   stop('bsky pass not found.')
 }
 auth <- bs_auth(bs_get_user(), bs_get_pass())
+auth$email
 
 # load available packages ----
 pkgs <- available.packages(filters = c('CRAN', 'duplicates')) |>
